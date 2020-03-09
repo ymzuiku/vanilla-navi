@@ -9,7 +9,7 @@ Gzip size: 1KB
 unpkg, use last version:
 
 ```html
-<script src="https://unpkg.com/vanilla-navi@6.6.6/umd/index.js"></script>
+<script src="https://unpkg.com/vanilla-navi@1.0.0/umd/index.js"></script>
 ```
 
 npm:
@@ -95,7 +95,6 @@ function Page(child: HTMLElement) {
   ele.style.position = "fixed";
   ele.style.top = "0px";
   ele.style.left = "0px";
-  ele.style.transition = "all 0.2s ease-out";
   ele.append(child);
 
   return ele;
@@ -106,12 +105,14 @@ function AnimaPage(child: HTMLElement) {
   const ele = Page(child);
 
   ele.style.opacity = "0";
-  ele.style.transform = "translateY(25%)";
+  ele.style.transform = "translateY(12%)";
+  ele.style.transition = "all 0.18s ease-in";
 
   // When page push:
   setTimeout(() => {
     ele.style.opacity = "1";
     ele.style.transform = "translateY(0%)";
+    ele.style.transition = "all 0.17s ease-out";
   }, 50);
 
   // When page pop:
@@ -121,7 +122,8 @@ function AnimaPage(child: HTMLElement) {
     // If use Navi.Pop, do this event:
     event: () => {
       ele.style.opacity = "0";
-      ele.style.transform = "translateY(25%)";
+      ele.style.transform = "translateY(12%)";
+      ele.style.transition = "all 0.18s ease-in";
     }
   };
 
