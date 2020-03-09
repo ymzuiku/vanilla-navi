@@ -1,0 +1,27 @@
+{
+  "name": "vanilla-navi",
+  "version": "0.1.0",
+  "main": "umd/index.js",
+  "types": "umd/index.d.ts",
+  "private": false,
+  "scripts": {
+    "lib": "node rollup.config.js"
+  },
+  "devDependencies": {
+    "rollup": "^2.0.2",
+    "rollup-plugin-typescript2": "^0.26.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "typescript": "^3.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ymzuiku/vanilla-navi.git"
+  },
+  "bugs": {
+    "url": "git+https://github.com/ymzuiku/vanilla-navi.git"
+  },
+  "homepage": "git+https://github.com/ymzuiku/vanilla-navi.git",
+  "dependencies": {
+    "querystring-number": "^1.0.7"
+  }
+}
