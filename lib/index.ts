@@ -153,7 +153,6 @@ function listen(fn: (options: IListen) => any) {
  */
 function use(path: string, component: (...args: any[]) => HTMLElement) {
   detail.routers[path] = component;
-  console.log(detail.routers);
 }
 
 // use window.location.hash load [path] and [params]
@@ -163,7 +162,7 @@ function getPathAndParams(): [string, any] {
 
   if (hash && hash.indexOf("?") >= -1) {
     const obj = hash.split("?");
-    return [obj[0], queryString.parse(obj[1])];
+    return [obj[0], queryString.parse(obj[1]) || undefined];
   }
 
   return [hash, undefined];
@@ -195,8 +194,6 @@ if (typeof window !== "undefined") {
       }
     }
 
-    console.log("=-===", isPop, detail.initData);
-
     if (!isPop) {
       const [path, params] = getPathAndParams();
       if (!detail.routers[path]) {
@@ -205,8 +202,6 @@ if (typeof window !== "undefined") {
         Navi.init(path, params);
       }
     }
-
-    console.log("=-===", isPop, detail.initData);
   });
 }
 

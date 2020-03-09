@@ -6,10 +6,10 @@ Gzip size: 1KB
 
 ## Install
 
-unpkg:
+unpkg, use last version:
 
 ```html
-<script src="https://unpkg.com/vanilla-navi@0.1.0/umd/index.js"></script>
+<script src="https://unpkg.com/vanilla-navi@6.6.6/umd/index.js"></script>
 ```
 
 npm:
