@@ -102,18 +102,21 @@ function pop() {
   }
   const _naviBeforePop = (detail.rootElement.lastChild as any)._naviBeforePop;
 
-  _runListen();
-  detail.paths.pop();
-  window.history.back();
+  function doPop() {
+    _runListen();
+    detail.paths.pop();
+    window.history.back();
+    detail.rootElement.lastChild &&
+      detail.rootElement.removeChild(detail.rootElement.lastChild);
+  }
 
   if (_naviBeforePop) {
     _naviBeforePop.event();
     setTimeout(() => {
-      detail.rootElement.lastChild &&
-        detail.rootElement.removeChild(detail.rootElement.lastChild);
+      doPop();
     }, _naviBeforePop.duration);
   } else {
-    detail.rootElement.removeChild(detail.rootElement.lastChild);
+    doPop();
   }
 }
 
