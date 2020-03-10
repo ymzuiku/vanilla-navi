@@ -3,6 +3,7 @@ import queryString from "querystring-number";
 export interface IPaths {
   path: string;
   params?: { [key: string]: any };
+  hash: string;
 }
 
 export interface IRegister {
@@ -16,6 +17,7 @@ export interface IListen {
 }
 
 export interface IDetail {
+  isPopBlock: boolean;
   division: string;
   rootElement: HTMLElement;
   paths: [IPaths];
@@ -27,6 +29,7 @@ export interface IDetail {
 }
 
 const detail: IDetail = {
+  isPopBlock: false,
   initData: null as any,
   routers: {},
   division: "#",
@@ -45,17 +48,16 @@ detail.rootElement.id = "navi-root";
 // 初始化页面，如果有路由
 function init(path: string, params?: { [key: string]: any }) {
   if (!detail.initData) {
-    detail.initData = { path, params };
+    detail.initData = { path, params  };
   }
 
   const hash = window.location.hash;
-  clearHistory();
   let realPath;
   let realParams;
 
   // 如果浏览器有目标路径，推进第二层路由
   if (hash) {
-    const pp = getPathAndParams();
+    const pp = hashParse();
     realPath = pp[0];
     realParams = pp[1];
   }
@@ -78,34 +80,37 @@ function push(path: string, params?: { [key: string]: any }) {
   }
 
   let ele: HTMLElement;
-  let url = "";
+  const url = hashStringify(path, params);
+
   if (params) {
     ele = detail.routers[path](params);
-    url = `${detail.division}${path}?${queryString.stringify(params)}`;
   } else {
     ele = detail.routers[path]();
-    url = `${detail.division}${path}`;
   }
 
-  window.history.pushState(null, "", url);
+  window.history.pushState(params, url, url);
 
   _runListen();
-  detail.paths.push({ path, params });
+  detail.paths.push({ path, params, hash: hashStringify(path, params) });
   ele.setAttribute("data-navi-path", url);
   detail.rootElement.append(ele);
 }
 
-function pop() {
-  if (!detail.rootElement.lastChild) {
-    console.warn("vanilla-navi: no have child elements");
+
+function pop(isIgnoreChangeHistory?: boolean) {
+  detail.isPopBlock = true;
+  if (!detail || !detail.rootElement || !detail.rootElement.lastChild) {
     return;
   }
+
   const _naviBeforePop = (detail.rootElement.lastChild as any)._naviBeforePop;
 
   function doPop() {
     _runListen();
     detail.paths.pop();
-    window.history.back();
+    if (!isIgnoreChangeHistory) {
+      window.history.back();
+    }
     detail.rootElement.lastChild &&
       detail.rootElement.removeChild(detail.rootElement.lastChild);
   }
@@ -123,11 +128,6 @@ function pop() {
 function canPop() {
   return !!detail.rootElement.lastChild;
 }
-
-const clearHistory = () => {
-  let state = { title: "", url: "" };
-  window.history.pushState(state, state.title, state.url);
-};
 
 function _runListen() {
   const listenFnKeys = Object.keys(detail.listenFunctions);
@@ -159,8 +159,7 @@ function use(path: string, component: (...args: any[]) => HTMLElement) {
 }
 
 // use window.location.hash load [path] and [params]
-function getPathAndParams(): [string, any] {
-  let hash = window.location.hash;
+function hashParse(hash = window.location.hash): [string, any] {
   hash = hash.replace(detail.division, "");
 
   if (hash && hash.indexOf("?") >= -1) {
@@ -169,6 +168,16 @@ function getPathAndParams(): [string, any] {
   }
 
   return [hash, undefined];
+}
+
+function hashStringify(path: string, params?: { [key: string]: any }) {
+  let url = "";
+  if (params) {
+    url = `${detail.division}${path}?${queryString.stringify(params)}`;
+  } else {
+    url = `${detail.division}${path}`;
+  }
+  return url;
 }
 
 const Navi = {
@@ -180,31 +189,20 @@ const Navi = {
   detail,
   use,
   init,
-  getPathAndParams,
-  clearHistory
+  hashParse,
+  hashStringify
 };
 
 // 监听浏览器路由是否变化
 if (typeof window !== "undefined") {
-  window.addEventListener("popstate", event => {
-    let isPop = false;
-
-    for (let i = 0; i < detail.paths.length; i++) {
-      const pp = detail.paths[i];
-      if (pp.path === window.location.hash) {
-        isPop = true;
-        break;
-      }
+  window.addEventListener("popstate", function(event) {
+    if (detail.isPopBlock) {
+      detail.isPopBlock = false;
+      return;
     }
 
-    if (!isPop) {
-      const [path, params] = getPathAndParams();
-      if (!detail.routers[path]) {
-        Navi.init(detail.initData.path, detail.initData.params);
-      } else {
-        Navi.init(path, params);
-      }
-    }
+    window.history.pushState({'temp':'1'}, '', '');
+    pop();
   });
 }
 
