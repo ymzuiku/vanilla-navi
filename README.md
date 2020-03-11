@@ -140,7 +140,7 @@ function Home() {
   // root page did't use animation:
   return Page(ele);
 }
-function User() {
+function User({ kind }: { kind: string }) {
   ...
   // other page need use animation:
   return AnimaPage(ele);
