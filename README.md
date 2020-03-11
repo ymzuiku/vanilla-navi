@@ -26,7 +26,6 @@ import Navi from "./vanilla-navi";
 // create Navi instantiation:
 const navi = Navi();
 
-
 function Home() {
   const ele = document.createElement("div");
 
@@ -37,7 +36,7 @@ function Home() {
   button.textContent = "go user";
   button.onclick = () => {
     // Go tu User page:
-    navi.push("/user");
+    navi.push("/user", { kind: "It is params.kind" });
   };
 
   ele.append(label, button);
@@ -45,11 +44,11 @@ function Home() {
   return ele;
 }
 
-function User() {
+function User({ kind }: { kind: string }) {
   const ele = document.createElement("div");
 
   const label = document.createElement("label");
-  label.textContent = "User page";
+  label.textContent = kind + " User page";
 
   const button = document.createElement("button");
   button.textContent = "back";
@@ -62,13 +61,12 @@ function User() {
 
   for (let index = 0; index < 50; index++) {
     const label = document.createElement("div");
-    label.textContent = "User page + " + index;
+    label.textContent = kind + " User page + " + index;
     ele.append(label);
   }
 
   return ele;
 }
-
 
 // register a path and a Page Function, Page Function return a HTMLElement:
 navi.use("/home", Home);
@@ -88,7 +86,6 @@ But this page
 Create two Function, create HTMLElement box:
 
 ```ts
-
 // Use Page(ele), can set full page:
 function Page(child: HTMLElement) {
   const ele = document.createElement("div");
