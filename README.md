@@ -23,6 +23,10 @@ $ npm install --save vanilla-navi
 ```ts
 import Navi from "./vanilla-navi";
 
+// create Navi instantiation:
+const navi = Navi();
+
+
 function Home() {
   const ele = document.createElement("div");
 
@@ -33,7 +37,7 @@ function Home() {
   button.textContent = "go user";
   button.onclick = () => {
     // Go tu User page:
-    Navi.push("/user");
+    navi.push("/user");
   };
 
   ele.append(label, button);
@@ -51,7 +55,7 @@ function User() {
   button.textContent = "back";
   button.onclick = () => {
     // Go back:
-    Navi.pop();
+    navi.pop();
   };
 
   ele.append(label, button);
@@ -67,14 +71,14 @@ function User() {
 
 
 // register a path and a Page Function, Page Function return a HTMLElement:
-Navi.use("/home", Home);
-Navi.use("/user", User);
+navi.use("/home", Home);
+navi.use("/user", User);
 
 // Setting navi start page, if input error URL, go back start page:
-Navi.init("/home");
+navi.init("/home");
 
-// Navi.root is all page's root element:
-document.body.append(Navi.root);
+// navi.root is all page's root element:
+document.body.append(navi.root);
 ```
 
 But this page
@@ -117,9 +121,9 @@ function AnimaPage(child: HTMLElement) {
 
   // When page pop:
   (ele as any)._naviBeforePop = {
-    // If use Navi.Pop, waiting 300ms remove this element:
+    // If use navi.Pop, waiting 300ms remove this element:
     duration: 300,
-    // If use Navi.Pop, do this event:
+    // If use navi.Pop, do this event:
     event: () => {
       ele.style.opacity = "0";
       ele.style.transform = "translateY(12%)";
@@ -135,6 +139,7 @@ Ok, Very easy, Let me change the example:
 
 ```ts
 function Home() {
+  ...
   // root page did't use animation:
   return Page(ele);
 }
