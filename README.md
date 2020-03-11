@@ -79,7 +79,7 @@ navi.init("/home");
 document.body.append(navi.root);
 ```
 
-But this page
+But this page no have page translate animation, let'me create it.
 
 ## Use Animate Page
 
