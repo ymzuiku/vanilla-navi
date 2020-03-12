@@ -28,7 +28,33 @@ export interface IDetail {
   initData: { path: string; params?: { [key: string]: any } };
 }
 
-function Navi() {
+export interface INavi {
+  root: HTMLElement;
+  canPop: () => boolean;
+  push: (path: string, params?: { [key: string]: any }) => any;
+  pop: () => any;
+  listen: (fn: (options: IListen) => any) => any;
+  detail: IDetail;
+  use: (path: string, component: (...args: any[]) => HTMLElement) => any;
+  init: (path: string, params?: { [key: string]: any }) => any;
+  hashParse: (hash: string) => [string, any];
+  hashStringify: (
+    path: string,
+    params?: { [key: string]: any }
+  ) => string;
+}
+
+const isWechat = /MicroMessenger/.test(navigator.userAgent);
+
+function pushState(data:any, title:string, url:string){
+  if (isWechat) {
+    window.history.replaceState(data, title, url);
+  } else {
+    window.history.pushState(data, title, url);
+  }
+}
+
+function Navi():INavi {
   const detail: IDetail = {
     isPopBlock: false,
     initData: null as any,
@@ -80,21 +106,28 @@ function Navi() {
       return;
     }
 
-    let ele: HTMLElement;
     const url = hashStringify(path, params);
 
-    if (params) {
-      ele = detail.routers[path](params);
-    } else {
-      ele = detail.routers[path]();
+    function pushEnd(ele:HTMLElement){
+      pushState(params, url, url);
+
+      _runListen();
+      detail.paths.push({ path, params, hash: hashStringify(path, params) });
+      ele.setAttribute("data-navi-path", url);
+      detail.rootElement.append(ele);
     }
 
-    window.history.pushState(params, url, url);
+    const comp = detail.routers[path](params);
 
-    _runListen();
-    detail.paths.push({ path, params, hash: hashStringify(path, params) });
-    ele.setAttribute("data-navi-path", url);
-    detail.rootElement.append(ele);
+    // 如果是异步路由
+    if (comp.then) {
+      comp.then((obj:any)=>{
+        return pushEnd(obj.default);
+      });
+
+      return;
+    }
+    pushEnd(comp);
   }
 
   function pop(isIgnoreChangeHistory?: boolean) {
@@ -126,7 +159,7 @@ function Navi() {
   }
 
   function canPop() {
-    return !!detail.rootElement.lastChild;
+    return detail.rootElement.childNodes.length > 1;
   }
 
   function _runListen() {
@@ -201,7 +234,7 @@ function Navi() {
         return;
       }
 
-      window.history.pushState({ temp: "1" }, "", "");
+      pushState({ temp: "1" }, "", "");
       pop();
     });
   }
