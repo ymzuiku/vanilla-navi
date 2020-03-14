@@ -38,23 +38,12 @@ export interface INavi {
   use: (path: string, component: (...args: any[]) => HTMLElement) => any;
   init: (path: string, params?: { [key: string]: any }) => any;
   hashParse: (hash: string) => [string, any];
-  hashStringify: (
-    path: string,
-    params?: { [key: string]: any }
-  ) => string;
+  hashStringify: (path: string, params?: { [key: string]: any }) => string;
 }
 
 const isWechat = /MicroMessenger/.test(navigator.userAgent);
 
-function pushState(data:any, title:string, url:string){
-  if (isWechat) {
-    window.history.replaceState(data, title, url);
-  } else {
-    window.history.pushState(data, title, url);
-  }
-}
-
-function Navi():INavi {
+function Navi(): INavi {
   const detail: IDetail = {
     isPopBlock: false,
     initData: null as any,
@@ -71,6 +60,14 @@ function Navi():INavi {
   detail.rootElement.style.width = "100%";
   detail.rootElement.style.height = "100%";
   detail.rootElement.id = "navi-root";
+
+  function pushState(data: any, title: string, url: string) {
+    if (isWechat) {
+      window.history.replaceState('wechat', '', hashStringify(detail.initData.path, detail.initData.params));
+    } else {
+      window.history.pushState(data, title, url);
+    }
+  }
 
   // 初始化页面，如果有路由
   function init(path: string, params?: { [key: string]: any }) {
@@ -108,7 +105,7 @@ function Navi():INavi {
 
     const url = hashStringify(path, params);
 
-    function pushEnd(ele:HTMLElement){
+    function pushEnd(ele: HTMLElement) {
       pushState(params, url, url);
 
       _runListen();
@@ -121,7 +118,7 @@ function Navi():INavi {
 
     // 如果是异步路由
     if (comp.then) {
-      comp.then((obj:any)=>{
+      comp.then((obj: any) => {
         return pushEnd(obj.default);
       });
 
@@ -159,7 +156,7 @@ function Navi():INavi {
   }
 
   function canPop() {
-    return detail.rootElement.childNodes.length > 1;
+    return detail.rootElement.childNodes.length >= 1;
   }
 
   function _runListen() {

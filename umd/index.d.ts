@@ -3,6 +3,7 @@ export interface IPaths {
     params?: {
         [key: string]: any;
     };
+    hash: string;
 }
 export interface IRegister {
     path: string;
@@ -15,6 +16,7 @@ export interface IListen {
     };
 }
 export interface IDetail {
+    isPopBlock: boolean;
     division: string;
     rootElement: HTMLElement;
     paths: [IPaths];
@@ -35,33 +37,23 @@ export interface IDetail {
         };
     };
 }
-declare function init(path: string, params?: {
-    [key: string]: any;
-}): void;
-declare function push(path: string, params?: {
-    [key: string]: any;
-}): void;
-declare function pop(): void;
-declare function canPop(): boolean;
-declare function listen(fn: (options: IListen) => any): () => void;
-/**
- *  Register page, can use push(path) change navigator
- *
- * @param {string} path
- * @param {(...args: any[]) => HTMLElement} component
- */
-declare function use(path: string, component: (...args: any[]) => HTMLElement): void;
-declare function getPathAndParams(): [string, any];
-declare const Navi: {
+export interface INavi {
     root: HTMLElement;
-    canPop: typeof canPop;
-    push: typeof push;
-    pop: typeof pop;
-    listen: typeof listen;
+    canPop: () => boolean;
+    push: (path: string, params?: {
+        [key: string]: any;
+    }) => any;
+    pop: () => any;
+    listen: (fn: (options: IListen) => any) => any;
     detail: IDetail;
-    use: typeof use;
-    init: typeof init;
-    getPathAndParams: typeof getPathAndParams;
-    clearHistory: () => void;
-};
+    use: (path: string, component: (...args: any[]) => HTMLElement) => any;
+    init: (path: string, params?: {
+        [key: string]: any;
+    }) => any;
+    hashParse: (hash: string) => [string, any];
+    hashStringify: (path: string, params?: {
+        [key: string]: any;
+    }) => string;
+}
+declare function Navi(): INavi;
 export default Navi;
