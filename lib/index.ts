@@ -6,11 +6,6 @@ export interface IPaths {
   hash: string;
 }
 
-export interface IRegister {
-  path: string;
-  component: (...args: any[]) => HTMLElement;
-}
-
 export interface IListen {
   path: string;
   params?: { [key: string]: any };
@@ -35,7 +30,12 @@ export interface INavi {
   pop: () => any;
   listen: (fn: (options: IListen) => any) => any;
   detail: IDetail;
-  use: (path: string, component: (...args: any[]) => HTMLElement) => any;
+  use: (
+    path: string,
+    component: (...args: any[]) => any,
+    delayAutoLoad?: number,
+    importName?: string
+  ) => any;
   init: (path: string, params?: { [key: string]: any }) => any;
   hashParse: (hash: string) => [string, any];
   hashStringify: (path: string, params?: { [key: string]: any }) => string;
@@ -63,7 +63,11 @@ function Navi(): INavi {
 
   function pushState(data: any, title: string, url: string) {
     if (isWechat) {
-      window.history.replaceState('wechat', '', hashStringify(detail.initData.path, detail.initData.params));
+      window.history.replaceState(
+        "wechat",
+        "",
+        hashStringify(detail.initData.path, detail.initData.params)
+      );
     } else {
       window.history.pushState(data, title, url);
     }
@@ -97,7 +101,7 @@ function Navi(): INavi {
     }
   }
 
-  function push(path: string, params?: { [key: string]: any }) {
+  async function push(path: string, params?: { [key: string]: any }) {
     if (detail.routers[path] === undefined) {
       push(detail.initData.path, detail.initData.params);
       return;
@@ -114,17 +118,19 @@ function Navi(): INavi {
       detail.rootElement.append(ele);
     }
 
-    const comp = detail.routers[path](params);
-
-    // 如果是异步路由
-    if (comp.then) {
-      comp.then((obj: any) => {
-        return pushEnd(obj.default);
-      });
-
-      return;
+    const component = detail.routers[path];
+    if (component.__navi_loadTimer) {
+      clearTimeout(component.__navi_loadTimer);
     }
-    pushEnd(comp);
+
+    let element = await Promise.resolve(component(params));
+
+    // 如果是异步加载，当前还是一个模块
+    if (element.__esModule) {
+      // 读取模块的组件，并且执行获取元素
+      element = await element[component.__navi_importName || "default"](params);
+    }
+    pushEnd(element);
   }
 
   function pop(isIgnoreChangeHistory?: boolean) {
@@ -184,7 +190,25 @@ function Navi(): INavi {
    * @param {string} path
    * @param {(...args: any[]) => HTMLElement} component
    */
-  function use(path: string, component: (...args: any[]) => HTMLElement) {
+  function use(
+    path: string,
+    component: (...args: any[]) => any,
+    delayAutoLoad?: number,
+    importName = "default"
+  ) {
+    // 处理预加载
+    if (delayAutoLoad) {
+      const loadTimer = setTimeout(() => {
+        component().then((comp: any) => {
+          (component as any).__navi_loadTimer = null;
+          detail.routers[path] = comp[importName];
+        });
+      }, delayAutoLoad);
+      // 用于记录clearTime，当主动加载时，取消预加载
+      (component as any).__navi_loadTimer = loadTimer;
+    }
+    (component as any).__navi_importName = importName;
+
     detail.routers[path] = component;
   }
 

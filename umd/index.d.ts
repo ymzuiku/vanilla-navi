@@ -5,10 +5,6 @@ export interface IPaths {
     };
     hash: string;
 }
-export interface IRegister {
-    path: string;
-    component: (...args: any[]) => HTMLElement;
-}
 export interface IListen {
     path: string;
     params?: {
@@ -46,7 +42,7 @@ export interface INavi {
     pop: () => any;
     listen: (fn: (options: IListen) => any) => any;
     detail: IDetail;
-    use: (path: string, component: (...args: any[]) => HTMLElement) => any;
+    use: (path: string, component: (...args: any[]) => any, delayAutoLoad?: number, importName?: string) => any;
     init: (path: string, params?: {
         [key: string]: any;
     }) => any;
