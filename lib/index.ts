@@ -58,6 +58,8 @@ function Navi(): INavi {
 
   // 设置根页面的基本样式
   detail.rootElement.style.width = "100%";
+  // detail.rootElement.style.maxWidth = "100vw";
+  // detail.rootElement.style.overflowX = "hidden";
   detail.rootElement.style.height = "100%";
   detail.rootElement.id = "navi-root";
 
@@ -133,7 +135,7 @@ function Navi(): INavi {
     pushEnd(element);
   }
 
-  function pop(isIgnoreChangeHistory?: boolean) {
+  function pop() {
     detail.isPopBlock = true;
     if (!detail || !detail.rootElement || !detail.rootElement.lastChild) {
       return;
@@ -144,9 +146,10 @@ function Navi(): INavi {
     function doPop() {
       _runListen();
       detail.paths.pop();
-      if (!isIgnoreChangeHistory) {
-        window.history.back();
-      }
+      window.history.back();
+      // const path = detail.paths[detail.paths.length-1];
+      // window.history.replaceState(path.params, path.hash, path.hash);
+
       detail.rootElement.lastChild &&
         detail.rootElement.removeChild(detail.rootElement.lastChild);
     }
