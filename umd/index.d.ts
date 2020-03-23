@@ -51,5 +51,5 @@ export interface INavi {
         [key: string]: any;
     }) => string;
 }
-declare function Navi(): INavi;
-export default Navi;
+declare const navi: INavi;
+export default navi;

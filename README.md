@@ -21,11 +21,9 @@ $ npm install --save vanilla-navi
 ## Example
 
 ```ts
-import Navi from "./vanilla-navi";
+import navi from "./vanilla-navi";
 
 // create Navi instantiation:
-const navi = Navi();
-
 function Home() {
   const ele = document.createElement("div");
 
