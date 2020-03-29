@@ -1,6 +1,6 @@
 {
   "name": "vanilla-navi",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "main": "umd/index.js",
   "types": "umd/index.d.ts",
   "private": false,

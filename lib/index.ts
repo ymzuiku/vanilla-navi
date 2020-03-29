@@ -110,7 +110,6 @@ async function push(path: string, params?: { [key: string]: any }) {
   if (detail.paths.length > 0 && detail.paths[detail.paths.length-1].path === path) {
     return;
   }
-  console.log(detail);
 
   const url = hashStringify(path, params);
 
